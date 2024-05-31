@@ -125,7 +125,7 @@ type
     property TopLeft: TPoint read FTopleft write FTopLeft;
 
     function AsAccessionText(): String;
-    function AsSpeciesText(): String;
+    function AsSpeciesText(_Parents: Boolean = False): String;
     function AsUIDText(): String;
 
     property Parent: TPlantList read FParent;
@@ -524,13 +524,13 @@ begin
   Result := TPlantStatus(GetEnumValue(Typeinfo(TPlantStatus), 'ps'+_PlantStatus));
 end;
 
-function TPlant.AsSpeciesText: String;
+function TPlant.AsSpeciesText(_Parents: Boolean): String;
 var
   AccR: String;
   DonorR: String;
-begin          
+begin
   Result := Species;
-  if Result <> '' then
+  if (Result <> '') and (not _Parents) then
     Exit; // -->
 
   if Assigned(FReceiver) then begin

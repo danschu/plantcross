@@ -91,6 +91,7 @@ type
     FPlantList: TPlantListDB;
     FTempSpikes: TSpikeList;
 
+    function GetComboboxObject(_combobox: TComboBox): TObject;
     function GetCrossCount(): integer;
     procedure UpdateUUID;
     procedure SpikesUpdated;
@@ -331,16 +332,16 @@ begin
     plant.Number := StrToIntDef(ed_Number.Text, 0);
     plant.UID := ed_UniqueID.Text;
     idx := cmb_Donor.ItemIndex;
-    plant.Donor := TPlant(cmb_Donor.Items.Objects[idx]);
+    plant.Donor := TPlant(GetComboboxObject(cmb_Donor));
 
     idx := cmb_Receiver.ItemIndex;
-    plant.Receiver := TPlant(cmb_Receiver.Items.Objects[idx]);         
+    plant.Receiver := TPlant(GetComboboxObject(cmb_Receiver));
     idx := cmb_ReceiverSpike.ItemIndex;
-    plant.ReceiverSpike := TSpike(cmb_ReceiverSpike.Items.Objects[idx]);
+    plant.ReceiverSpike := TSpike(GetComboboxObject(cmb_ReceiverSpike));
 
     plant.Status := psUnknown;
     if cmb_Status.ItemIndex >= 0 then
-      plant.Status := TPlantStatus(Int64(cmb_Status.Items.Objects[cmb_Status.ItemIndex]));
+      plant.Status := TPlantStatus(Int64(GetComboboxObject(cmb_Status)));
 
     plant.Deleted := chk_deleted.Checked;
 
@@ -432,8 +433,8 @@ var
   plant_receiver: TPlant;
   plant_donor: TPlant;
 begin
-  plant_receiver := TPlant(cmb_Receiver.Items.Objects[cmb_Receiver.ItemIndex]);
-  plant_donor := TPlant(cmb_Donor.Items.Objects[cmb_Donor.ItemIndex]);
+  plant_receiver := TPlant(GetComboBoxObject(cmb_Receiver));
+  plant_donor := TPlant(GetComboBoxObject(cmb_Donor));
   UpdateGeneration(plant_receiver, plant_donor);
 
   UpdateUUID;
@@ -449,8 +450,8 @@ var
   plant_receiver: TPlant;   
   plant_donor: TPlant;
 begin
-  plant_receiver := TPlant(cmb_Receiver.Items.Objects[cmb_Receiver.ItemIndex]);
-  plant_donor := TPlant(cmb_Donor.Items.Objects[cmb_Donor.ItemIndex]);
+  plant_receiver := TPlant(GetComboBoxObject(cmb_Receiver));
+  plant_donor := TPlant(GetComboBoxObject(cmb_Donor));
   UpdateGeneration(plant_receiver, plant_donor);
   UpdateReceiverSpike(plant_receiver);
 
@@ -559,6 +560,15 @@ begin
 
 end;
 
+function Tf_AddPlant.GetComboboxObject(_combobox: TComboBox): TObject;
+begin
+  Result := nil;
+  if _combobox.ItemIndex = -1 then
+    Exit; // -->
+
+  Result := _combobox.Items.Objects[_combobox.ItemIndex];
+end;
+
 function Tf_AddPlant.GetCrossCount: integer;
 var
   plant_receiver: TPlant;
@@ -567,10 +577,11 @@ var
   spec: String;
   c: integer;
   plant: TPlant;
+  spec2: String;
 begin
   Result := 1;
-  plant_receiver := TPlant(cmb_Receiver.Items.Objects[cmb_Receiver.ItemIndex]);
-  plant_donor := TPlant(cmb_Donor.Items.Objects[cmb_Donor.ItemIndex]);
+  plant_receiver := TPlant(GetComboboxObject(cmb_Receiver));
+  plant_donor := TPlant(GetComboboxObject(cmb_Donor));
   if Assigned(plant_receiver) and Assigned(plant_donor) then begin
     pl := TPlant.Create(FPlantList);
     try
@@ -582,7 +593,8 @@ begin
     end;
     c := 1;
     for plant in FPlantList do begin
-      if plant.AsSpeciesText() = spec then begin
+      spec2 := plant.AsSpeciesText(True);
+      if spec2 = spec then begin
         c := c+1;
       end;
     end;
