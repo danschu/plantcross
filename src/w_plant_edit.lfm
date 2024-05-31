@@ -1,276 +1,314 @@
 object f_AddPlant: Tf_AddPlant
   Left = 577
-  Height = 733
+  Height = 471
   Top = 271
-  Width = 626
+  Width = 544
   Align = alBottom
   Caption = 'Edit Plant'
-  ClientHeight = 733
-  ClientWidth = 626
+  ClientHeight = 471
+  ClientWidth = 544
   OnCreate = FormCreate
   OnDestroy = FormDestroy
   Position = poScreenCenter
   LCLVersion = '2.2.6.0'
-  object ed_UniqueID: TEdit
-    Left = 10
-    Height = 23
-    Top = 320
-    Width = 604
-    Anchors = [akTop, akLeft, akRight]
-    Color = clSilver
-    Enabled = False
-    OnChange = ed_UniqueIDChange
-    TabOrder = 11
-  end
-  object l_Name: TLabel
-    Left = 10
-    Height = 15
-    Top = 300
-    Width = 49
-    Caption = 'UniqueID'
-    ParentColor = False
-  end
-  object ed_Accession: TEdit
-    Left = 10
-    Height = 23
-    Top = 72
-    Width = 604
-    OnChange = ed_AccessionChange
-    TabOrder = 1
-  end
-  object l_Accession: TLabel
-    Left = 10
-    Height = 15
-    Top = 56
-    Width = 53
-    Caption = 'Accession'
-    ParentColor = False
-  end
-  object l_Receiver: TLabel
-    Left = 10
-    Height = 15
-    Top = 152
-    Width = 44
-    Caption = 'Receiver'
-    ParentColor = False
-  end
-  object cmb_Receiver: TComboBox
-    Left = 10
-    Height = 23
-    Top = 168
-    Width = 342
-    Anchors = [akTop, akLeft, akRight]
-    ItemHeight = 15
-    OnChange = cmb_ReceiverChange
-    TabOrder = 3
-  end
-  object l_Donor: TLabel
-    Left = 10
-    Height = 15
-    Top = 200
-    Width = 33
-    Caption = 'Donor'
-    ParentColor = False
-  end
-  object cmb_Donor: TComboBox
-    Left = 11
-    Height = 23
-    Top = 216
-    Width = 470
-    Anchors = [akTop, akLeft, akRight]
-    ItemHeight = 15
-    OnChange = cmb_DonorChange
-    TabOrder = 6
-  end
   object b_Edit: TButton
     Left = 0
     Height = 47
-    Top = 686
-    Width = 626
+    Top = 424
+    Width = 544
     Align = alBottom
     Anchors = [akRight]
     Caption = 'Edit'
     ModalResult = 1
     OnClick = b_EditClick
-    TabOrder = 14
-  end
-  object ed_Generation: TEdit
-    Left = 10
-    Height = 23
-    Top = 265
-    Width = 136
-    Color = clSilver
-    ReadOnly = True
-    TabOrder = 7
-  end
-  object l_Generation: TLabel
-    Left = 10
-    Height = 15
-    Top = 248
-    Width = 58
-    Caption = 'Generation'
-    ParentColor = False
-  end
-  object ed_GenerationDonor: TEdit
-    Left = 489
-    Height = 23
-    Top = 216
-    Width = 120
-    Anchors = [akTop, akRight]
-    Color = clSilver
-    ReadOnly = True
-    TabOrder = 8
-  end
-  object ed_GenerationReceiver: TEdit
-    Left = 489
-    Height = 23
-    Top = 168
-    Width = 120
-    Anchors = [akTop, akRight]
-    Color = clSilver
-    ReadOnly = True
-    TabOrder = 5
-  end
-  object l_GenerationReceiver: TLabel
-    Left = 489
-    Height = 15
-    Top = 152
-    Width = 58
-    Caption = 'Generation'
-    ParentColor = False
-  end
-  object l_GenerationDonor: TLabel
-    Left = 489
-    Height = 15
-    Top = 200
-    Width = 58
-    Caption = 'Generation'
-    ParentColor = False
-  end
-  object ed_Number: TEdit
-    Left = 151
-    Height = 23
-    Top = 265
-    Width = 136
-    Color = clSilver
-    ReadOnly = True
-    TabOrder = 9
-  end
-  object l_Index: TLabel
-    Left = 154
-    Height = 15
-    Top = 249
-    Width = 44
-    Caption = 'Number'
-    ParentColor = False
-  end
-  object de_DateOfCrossing: TDateEdit
-    Left = 10
-    Height = 23
-    Top = 368
-    Width = 279
-    CalendarDisplaySettings = [dsShowHeadings, dsShowDayNames]
-    DateOrder = doNone
-    ButtonWidth = 23
-    NumGlyphs = 1
-    MaxLength = 0
-    TabOrder = 12
-  end
-  object l_DateOfCrossing: TLabel
-    Left = 12
-    Height = 15
-    Top = 352
-    Width = 87
-    Caption = 'Date of Crossing'
-    ParentColor = False
-  end
-  object chk_deleted: TCheckBox
-    Left = 426
-    Height = 19
-    Top = 368
-    Width = 60
-    Caption = 'Deleted'
-    TabOrder = 13
-  end
-  object l_Status: TLabel
-    Left = 298
-    Height = 15
-    Top = 352
-    Width = 32
-    Caption = 'Status'
-    ParentColor = False
-  end
-  object cmb_Status: TComboBox
-    Left = 298
-    Height = 23
-    Top = 368
-    Width = 120
-    ItemHeight = 15
-    OnChange = cmb_StatusChange
-    Style = csDropDownList
-    TabOrder = 15
-  end
-  object ed_Species: TEdit
-    Left = 10
-    Height = 23
-    Top = 24
-    Width = 604
-    OnChange = ed_SpeciesChange
     TabOrder = 0
-  end
-  object l_Species: TLabel
-    Left = 10
-    Height = 15
-    Top = 8
-    Width = 39
-    Caption = 'Species'
-    ParentColor = False
-  end
-  object l_NameFilter: TLabel
-    Left = 10
-    Height = 15
-    Top = 104
-    Width = 61
-    Caption = 'Name Filter'
-    ParentColor = False
-  end
-  object cmb_NameFilter: TComboBox
-    Left = 10
-    Height = 23
-    Top = 120
-    Width = 175
-    ItemHeight = 15
-    ItemIndex = 1
-    Items.Strings = (
-      'UnqiueID'
-      'Species'
-      'Accession'
-    )
-    OnChange = cmb_NameFilterChange
-    Style = csDropDownList
-    TabOrder = 2
-    Text = 'Species'
   end
   object en_Bottom: TExtendedNotebook
     Left = 0
-    Height = 286
-    Top = 400
-    Width = 626
-    ActivePage = ts_Spikes
-    Align = alBottom
-    Anchors = [akTop, akLeft, akRight, akBottom]
+    Height = 424
+    Top = 0
+    Width = 544
+    ActivePage = ts_Plant
+    Align = alClient
     TabIndex = 0
-    TabOrder = 16
+    TabOrder = 1
     OnChange = en_BottomChange
+    object ts_Plant: TTabSheet
+      Caption = 'Plant'
+      ClientHeight = 396
+      ClientWidth = 536
+      OnContextPopup = ts_PlantContextPopup
+      object ed_UniqueID: TEdit
+        Left = 10
+        Height = 23
+        Top = 320
+        Width = 522
+        Anchors = [akTop, akLeft, akRight]
+        Color = clSilver
+        Enabled = False
+        OnChange = ed_UniqueIDChange
+        TabOrder = 0
+      end
+      object l_Name: TLabel
+        Left = 10
+        Height = 15
+        Top = 300
+        Width = 49
+        Caption = 'UniqueID'
+        ParentColor = False
+      end
+      object ed_Accession: TEdit
+        Left = 10
+        Height = 23
+        Top = 72
+        Width = 522
+        Anchors = [akTop, akLeft, akRight]
+        OnChange = ed_AccessionChange
+        TabOrder = 1
+      end
+      object l_Accession: TLabel
+        Left = 10
+        Height = 15
+        Top = 56
+        Width = 53
+        Caption = 'Accession'
+        ParentColor = False
+      end
+      object l_Receiver: TLabel
+        Left = 10
+        Height = 15
+        Top = 152
+        Width = 44
+        Caption = 'Receiver'
+        ParentColor = False
+      end
+      object cmb_Receiver: TComboBox
+        Left = 10
+        Height = 23
+        Top = 168
+        Width = 260
+        Anchors = [akTop, akLeft, akRight]
+        ItemHeight = 15
+        OnChange = cmb_ReceiverChange
+        TabOrder = 2
+      end
+      object l_Donor: TLabel
+        Left = 10
+        Height = 15
+        Top = 200
+        Width = 33
+        Caption = 'Donor'
+        ParentColor = False
+      end
+      object cmb_Donor: TComboBox
+        Left = 11
+        Height = 23
+        Top = 216
+        Width = 388
+        Anchors = [akTop, akLeft, akRight]
+        ItemHeight = 15
+        OnChange = cmb_DonorChange
+        TabOrder = 3
+      end
+      object ed_Generation: TEdit
+        Left = 10
+        Height = 23
+        Top = 265
+        Width = 136
+        Color = clSilver
+        ReadOnly = True
+        TabOrder = 4
+      end
+      object l_Generation: TLabel
+        Left = 10
+        Height = 15
+        Top = 248
+        Width = 58
+        Caption = 'Generation'
+        ParentColor = False
+      end
+      object ed_GenerationDonor: TEdit
+        Left = 407
+        Height = 23
+        Top = 216
+        Width = 120
+        Anchors = [akTop, akRight]
+        Color = clSilver
+        ReadOnly = True
+        TabOrder = 5
+      end
+      object ed_GenerationReceiver: TEdit
+        Left = 407
+        Height = 23
+        Top = 168
+        Width = 120
+        Anchors = [akTop, akRight]
+        Color = clSilver
+        ReadOnly = True
+        TabOrder = 6
+      end
+      object l_GenerationReceiver: TLabel
+        Left = 408
+        Height = 15
+        Top = 152
+        Width = 58
+        Anchors = [akTop, akRight]
+        Caption = 'Generation'
+        ParentColor = False
+      end
+      object l_GenerationDonor: TLabel
+        Left = 408
+        Height = 15
+        Top = 200
+        Width = 58
+        Anchors = [akTop, akRight]
+        Caption = 'Generation'
+        ParentColor = False
+      end
+      object ed_Number: TEdit
+        Left = 151
+        Height = 23
+        Top = 265
+        Width = 136
+        Color = clSilver
+        ReadOnly = True
+        TabOrder = 7
+      end
+      object l_Index: TLabel
+        Left = 154
+        Height = 15
+        Top = 249
+        Width = 44
+        Caption = 'Number'
+        ParentColor = False
+      end
+      object de_DateOfCrossing: TDateEdit
+        Left = 10
+        Height = 23
+        Top = 368
+        Width = 279
+        CalendarDisplaySettings = [dsShowHeadings, dsShowDayNames]
+        DateOrder = doNone
+        ButtonWidth = 23
+        NumGlyphs = 1
+        MaxLength = 0
+        TabOrder = 8
+      end
+      object l_DateOfCrossing: TLabel
+        Left = 12
+        Height = 15
+        Top = 352
+        Width = 87
+        Caption = 'Date of Crossing'
+        ParentColor = False
+      end
+      object chk_deleted: TCheckBox
+        Left = 426
+        Height = 19
+        Top = 368
+        Width = 60
+        Caption = 'Deleted'
+        TabOrder = 9
+      end
+      object l_Status: TLabel
+        Left = 298
+        Height = 15
+        Top = 352
+        Width = 32
+        Caption = 'Status'
+        ParentColor = False
+      end
+      object cmb_Status: TComboBox
+        Left = 298
+        Height = 23
+        Top = 368
+        Width = 120
+        ItemHeight = 15
+        OnChange = cmb_StatusChange
+        Style = csDropDownList
+        TabOrder = 10
+      end
+      object ed_Species: TEdit
+        Left = 10
+        Height = 23
+        Top = 24
+        Width = 522
+        Anchors = [akTop, akLeft, akRight]
+        OnChange = ed_SpeciesChange
+        TabOrder = 11
+      end
+      object l_Species: TLabel
+        Left = 10
+        Height = 15
+        Top = 8
+        Width = 39
+        Caption = 'Species'
+        ParentColor = False
+      end
+      object l_NameFilter: TLabel
+        Left = 10
+        Height = 15
+        Top = 104
+        Width = 61
+        Caption = 'Name Filter'
+        ParentColor = False
+      end
+      object cmb_NameFilter: TComboBox
+        Left = 10
+        Height = 23
+        Top = 120
+        Width = 175
+        ItemHeight = 15
+        ItemIndex = 1
+        Items.Strings = (
+          'UnqiueID'
+          'Species'
+          'Accession'
+        )
+        OnChange = cmb_NameFilterChange
+        Style = csDropDownList
+        TabOrder = 12
+        Text = 'Species'
+      end
+      object l_ReceiverSpike: TLabel
+        Left = 280
+        Height = 15
+        Top = 152
+        Width = 75
+        Anchors = [akTop, akRight]
+        Caption = 'Receiver Spike'
+        ParentColor = False
+      end
+      object cmb_ReceiverSpike: TComboBox
+        Left = 280
+        Height = 23
+        Top = 168
+        Width = 121
+        Anchors = [akTop, akRight]
+        ItemHeight = 15
+        TabOrder = 13
+      end
+      object chk_Autogenerate: TCheckBox
+        Left = 80
+        Height = 19
+        Top = 296
+        Width = 92
+        Caption = 'Autogenerate'
+        Checked = True
+        OnChange = chk_AutogenerateChange
+        State = cbChecked
+        TabOrder = 14
+      end
+    end
     object ts_Spikes: TTabSheet
       Caption = 'Spikes'
-      ClientHeight = 258
-      ClientWidth = 618
+      ClientHeight = 396
+      ClientWidth = 536
       object TheVirtualStringTree: TVirtualStringTree
         Left = 0
-        Height = 258
-        Top = 0
-        Width = 472
+        Height = 300
+        Top = 96
+        Width = 536
         Align = alClient
         DefaultText = '???'
         Header.AutoSizeIndex = -1
@@ -300,18 +338,18 @@ object f_AddPlant: Tf_AddPlant
         OnGetText = TheVirtualStringTreeGetText
       end
       object p_SpikeRight: TPanel
-        Left = 472
-        Height = 258
+        Left = 0
+        Height = 96
         Top = 0
-        Width = 146
-        Align = alRight
-        ClientHeight = 258
-        ClientWidth = 146
+        Width = 536
+        Align = alTop
+        ClientHeight = 96
+        ClientWidth = 536
         TabOrder = 1
         object b_SpikeAdd: TButton
-          Left = 8
+          Left = 6
           Height = 25
-          Top = 160
+          Top = 64
           Width = 131
           Caption = 'Add'
           Enabled = False
@@ -327,9 +365,9 @@ object f_AddPlant: Tf_AddPlant
           ParentColor = False
         end
         object b_SpikeDelete: TButton
-          Left = 7
+          Left = 280
           Height = 25
-          Top = 224
+          Top = 64
           Width = 131
           Caption = 'Delete'
           Enabled = False
@@ -345,25 +383,25 @@ object f_AddPlant: Tf_AddPlant
           TabOrder = 0
         end
         object l_SeedCount: TLabel
-          Left = 8
+          Left = 144
           Height = 15
-          Top = 53
+          Top = 5
           Width = 61
           Caption = 'Seed Count'
           ParentColor = False
         end
         object se_SeedCount: TSpinEdit
-          Left = 8
+          Left = 144
           Height = 23
-          Top = 72
+          Top = 24
           Width = 130
           MaxValue = 10000
           TabOrder = 1
         end
         object b_SpikeUpdate: TButton
-          Left = 7
+          Left = 144
           Height = 25
-          Top = 192
+          Top = 64
           Width = 131
           Caption = 'Update'
           Enabled = False
@@ -371,17 +409,17 @@ object f_AddPlant: Tf_AddPlant
           TabOrder = 4
         end
         object l_FlowerCount: TLabel
-          Left = 8
+          Left = 280
           Height = 15
-          Top = 101
+          Top = 5
           Width = 71
           Caption = 'Flower Count'
           ParentColor = False
         end
         object se_FlowerCount: TSpinEdit
-          Left = 8
+          Left = 280
           Height = 23
-          Top = 120
+          Top = 24
           Width = 130
           MaxValue = 10000
           TabOrder = 2
@@ -390,8 +428,8 @@ object f_AddPlant: Tf_AddPlant
     end
     object ts_Comment: TTabSheet
       Caption = 'Comment'
-      ClientHeight = 258
-      ClientWidth = 618
+      ClientHeight = 396
+      ClientWidth = 536
       object l_Comment: TLabel
         Left = 8
         Height = 15
@@ -402,40 +440,13 @@ object f_AddPlant: Tf_AddPlant
       end
       object m_Comment: TMemo
         Left = 0
-        Height = 226
+        Height = 364
         Top = 32
-        Width = 618
+        Width = 536
         Align = alBottom
         Anchors = [akTop, akLeft, akRight]
         TabOrder = 0
       end
     end
-  end
-  object l_ReceiverSpike: TLabel
-    Left = 360
-    Height = 15
-    Top = 152
-    Width = 75
-    Caption = 'Receiver Spike'
-    ParentColor = False
-  end
-  object cmb_ReceiverSpike: TComboBox
-    Left = 360
-    Height = 23
-    Top = 168
-    Width = 121
-    ItemHeight = 15
-    TabOrder = 4
-  end
-  object chk_Autogenerate: TCheckBox
-    Left = 80
-    Height = 19
-    Top = 296
-    Width = 92
-    Caption = 'Autogenerate'
-    Checked = True
-    OnChange = chk_AutogenerateChange
-    State = cbChecked
-    TabOrder = 10
   end
 end

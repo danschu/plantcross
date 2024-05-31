@@ -7,7 +7,7 @@ interface
 uses
   Classes, SysUtils, Forms, Controls, Graphics, Dialogs, StdCtrls, EditBtn,
   ComCtrls, ExtCtrls, Spin, VirtualTrees, ExtendedNotebook, DateUtils, Variants,
-  u_plant, RegExpr, crc, math;
+  u_plant, RegExpr, crc, math, Types;
 
 type
 
@@ -20,42 +20,43 @@ type
     b_Edit: TButton;
     chk_Autogenerate: TCheckBox;
     chk_deleted: TCheckBox;
-    cmb_Receiver: TComboBox;
     cmb_Donor: TComboBox;
-    cmb_Status: TComboBox;
     cmb_NameFilter: TComboBox;
+    cmb_Receiver: TComboBox;
     cmb_ReceiverSpike: TComboBox;
+    cmb_Status: TComboBox;
     de_DateOfCrossing: TDateEdit;
-    ed_SpikeName: TEdit;
-    ed_Species: TEdit;
-    ed_Generation: TEdit;
     ed_Accession: TEdit;
-    ed_Number: TEdit;
+    ed_Generation: TEdit;
     ed_GenerationDonor: TEdit;
     ed_GenerationReceiver: TEdit;
+    ed_Number: TEdit;
+    ed_Species: TEdit;
+    ed_SpikeName: TEdit;
     ed_UniqueID: TEdit;
     en_Bottom: TExtendedNotebook;
-    l_FlowerCount: TLabel;
-    l_ReceiverSpike: TLabel;
-    l_SeedCount: TLabel;
-    l_SpikeName: TLabel;
-    l_Comment: TLabel;
-    l_NameFilter: TLabel;
-    l_Species: TLabel;
-    l_Status: TLabel;
+    l_Accession: TLabel;
     l_DateOfCrossing: TLabel;
+    l_Donor: TLabel;
+    l_FlowerCount: TLabel;
     l_Generation: TLabel;
-    l_Index: TLabel;
     l_GenerationDonor: TLabel;
     l_GenerationReceiver: TLabel;
-    l_Receiver: TLabel;
-    l_Accession: TLabel;
+    l_Index: TLabel;
     l_Name: TLabel;
-    l_Donor: TLabel;
+    l_NameFilter: TLabel;
+    l_Receiver: TLabel;
+    l_ReceiverSpike: TLabel;
+    l_SeedCount: TLabel;
+    l_Species: TLabel;
+    l_SpikeName: TLabel;
+    l_Comment: TLabel;
+    l_Status: TLabel;
     m_Comment: TMemo;
     p_SpikeRight: TPanel;
     se_SeedCount: TSpinEdit;
     se_FlowerCount: TSpinEdit;
+    ts_Plant: TTabSheet;
     TheVirtualStringTree: TVirtualStringTree;
     ts_Spikes: TTabSheet;
     ts_Comment: TTabSheet;
@@ -83,6 +84,8 @@ type
     procedure TheVirtualStringTreeGetText(Sender: TBaseVirtualTree;
       Node: PVirtualNode; Column: TColumnIndex; TextType: TVSTTextType;
       var CellText: String);
+    procedure ts_PlantContextPopup(Sender: TObject; MousePos: TPoint;
+      var Handled: Boolean);
   private
     FPlant: TPlant;
     FPlantList: TPlantListDB;
@@ -548,6 +551,12 @@ begin
      COLUMN_SPIKE_SEED_COUNT: CellText := IntToStr(spike.SeedCount);
      COLUMN_SPIKE_FLOWER_COUNT: CellText := IntToStr(spike.FlowerCount);
   end;
+end;
+
+procedure Tf_AddPlant.ts_PlantContextPopup(Sender: TObject; MousePos: TPoint;
+  var Handled: Boolean);
+begin
+
 end;
 
 function Tf_AddPlant.GetCrossCount: integer;
