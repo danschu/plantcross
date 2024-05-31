@@ -491,6 +491,8 @@ var
   id: String;
   gd: TGuid;
 begin
+  Constraints.MinHeight := Height;
+  Constraints.MinWidth := Width;
   FTempSpikes := TSpikeList.Create(True);
   InitData;
 

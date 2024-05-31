@@ -1,11 +1,11 @@
 object f_PlantCrossing: Tf_PlantCrossing
   Left = 628
-  Height = 593
+  Height = 744
   Top = 232
-  Width = 1121
+  Width = 1295
   Caption = 'PlantCross'
-  ClientHeight = 573
-  ClientWidth = 1121
+  ClientHeight = 724
+  ClientWidth = 1295
   Menu = TheMenu
   OnCreate = FormCreate
   OnDestroy = FormDestroy
@@ -15,18 +15,18 @@ object f_PlantCrossing: Tf_PlantCrossing
   object TheStatusbar: TStatusBar
     Left = 0
     Height = 23
-    Top = 550
-    Width = 1121
+    Top = 701
+    Width = 1295
     Panels = <>
   end
   object p_Left: TPanel
     Left = 0
-    Height = 550
+    Height = 701
     Top = 0
     Width = 170
     Align = alLeft
     BevelOuter = bvNone
-    ClientHeight = 550
+    ClientHeight = 701
     ClientWidth = 170
     TabOrder = 1
     object b_AddNewPlant: TButton
@@ -67,18 +67,18 @@ object f_PlantCrossing: Tf_PlantCrossing
   end
   object p_Client: TPanel
     Left = 170
-    Height = 550
+    Height = 701
     Top = 0
-    Width = 951
+    Width = 1125
     Align = alClient
-    ClientHeight = 550
-    ClientWidth = 951
+    ClientHeight = 701
+    ClientWidth = 1125
     TabOrder = 2
     object TheVirtualStringTree: TVirtualStringTree
       Left = 1
-      Height = 392
+      Height = 543
       Top = 1
-      Width = 949
+      Width = 1123
       Align = alClient
       DefaultText = '???'
       Header.AutoSizeIndex = -1
@@ -86,12 +86,12 @@ object f_PlantCrossing: Tf_PlantCrossing
         item
           Position = 0
           Text = 'UID'
-          Width = 120
+          Width = 100
         end      
         item
           Position = 1
           Text = 'Species'
-          Width = 160
+          Width = 120
         end      
         item
           Position = 2
@@ -111,12 +111,12 @@ object f_PlantCrossing: Tf_PlantCrossing
         item
           Position = 5
           Text = 'Receiver Spike'
-          Width = 120
+          Width = 100
         end      
         item
           Position = 6
           Text = 'Donor'
-          Width = 156
+          Width = 120
         end      
         item
           Position = 7
@@ -131,12 +131,12 @@ object f_PlantCrossing: Tf_PlantCrossing
         item
           Position = 9
           Text = '#Crossing'
-          Width = 80
+          Width = 70
         end      
         item
           Position = 10
           Text = '#Spikes'
-          Width = 80
+          Width = 70
         end>
       Header.MainColumn = 1
       Header.Options = [hoColumnResize, hoDrag, hoShowSortGlyphs, hoVisible]
@@ -150,8 +150,8 @@ object f_PlantCrossing: Tf_PlantCrossing
     object p_Graph: TPanel
       Left = 1
       Height = 151
-      Top = 398
-      Width = 949
+      Top = 549
+      Width = 1123
       Align = alBottom
       TabOrder = 1
     end
@@ -159,8 +159,8 @@ object f_PlantCrossing: Tf_PlantCrossing
       Cursor = crVSplit
       Left = 1
       Height = 5
-      Top = 393
-      Width = 949
+      Top = 544
+      Width = 1123
       Align = alBottom
       ResizeAnchor = akBottom
     end

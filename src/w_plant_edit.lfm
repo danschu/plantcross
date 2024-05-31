@@ -1,11 +1,11 @@
 object f_AddPlant: Tf_AddPlant
   Left = 577
-  Height = 764
+  Height = 733
   Top = 271
   Width = 626
   Align = alBottom
   Caption = 'Edit Plant'
-  ClientHeight = 764
+  ClientHeight = 733
   ClientWidth = 626
   OnCreate = FormCreate
   OnDestroy = FormDestroy
@@ -47,7 +47,7 @@ object f_AddPlant: Tf_AddPlant
     ParentColor = False
   end
   object l_Receiver: TLabel
-    Left = 9
+    Left = 10
     Height = 15
     Top = 152
     Width = 44
@@ -55,17 +55,17 @@ object f_AddPlant: Tf_AddPlant
     ParentColor = False
   end
   object cmb_Receiver: TComboBox
-    Left = 8
+    Left = 10
     Height = 23
     Top = 168
-    Width = 344
+    Width = 342
     Anchors = [akTop, akLeft, akRight]
     ItemHeight = 15
     OnChange = cmb_ReceiverChange
     TabOrder = 3
   end
   object l_Donor: TLabel
-    Left = 9
+    Left = 10
     Height = 15
     Top = 200
     Width = 33
@@ -73,10 +73,10 @@ object f_AddPlant: Tf_AddPlant
     ParentColor = False
   end
   object cmb_Donor: TComboBox
-    Left = 9
+    Left = 11
     Height = 23
     Top = 216
-    Width = 472
+    Width = 470
     Anchors = [akTop, akLeft, akRight]
     ItemHeight = 15
     OnChange = cmb_DonorChange
@@ -84,11 +84,11 @@ object f_AddPlant: Tf_AddPlant
   end
   object b_Edit: TButton
     Left = 0
-    Height = 68
-    Top = 696
+    Height = 47
+    Top = 686
     Width = 626
     Align = alBottom
-    Anchors = [akTop, akRight]
+    Anchors = [akRight]
     Caption = 'Edit'
     ModalResult = 1
     OnClick = b_EditClick
@@ -167,7 +167,7 @@ object f_AddPlant: Tf_AddPlant
   object de_DateOfCrossing: TDateEdit
     Left = 10
     Height = 23
-    Top = 384
+    Top = 368
     Width = 279
     CalendarDisplaySettings = [dsShowHeadings, dsShowDayNames]
     DateOrder = doNone
@@ -179,7 +179,7 @@ object f_AddPlant: Tf_AddPlant
   object l_DateOfCrossing: TLabel
     Left = 12
     Height = 15
-    Top = 368
+    Top = 352
     Width = 87
     Caption = 'Date of Crossing'
     ParentColor = False
@@ -187,7 +187,7 @@ object f_AddPlant: Tf_AddPlant
   object chk_deleted: TCheckBox
     Left = 426
     Height = 19
-    Top = 384
+    Top = 368
     Width = 60
     Caption = 'Deleted'
     TabOrder = 13
@@ -195,7 +195,7 @@ object f_AddPlant: Tf_AddPlant
   object l_Status: TLabel
     Left = 298
     Height = 15
-    Top = 368
+    Top = 352
     Width = 32
     Caption = 'Status'
     ParentColor = False
@@ -203,7 +203,7 @@ object f_AddPlant: Tf_AddPlant
   object cmb_Status: TComboBox
     Left = 298
     Height = 23
-    Top = 384
+    Top = 368
     Width = 120
     ItemHeight = 15
     OnChange = cmb_StatusChange
@@ -227,7 +227,7 @@ object f_AddPlant: Tf_AddPlant
     ParentColor = False
   end
   object l_NameFilter: TLabel
-    Left = 8
+    Left = 10
     Height = 15
     Top = 104
     Width = 61
@@ -235,7 +235,7 @@ object f_AddPlant: Tf_AddPlant
     ParentColor = False
   end
   object cmb_NameFilter: TComboBox
-    Left = 8
+    Left = 10
     Height = 23
     Top = 120
     Width = 175
@@ -253,21 +253,22 @@ object f_AddPlant: Tf_AddPlant
   end
   object en_Bottom: TExtendedNotebook
     Left = 0
-    Height = 288
-    Top = 424
+    Height = 286
+    Top = 400
     Width = 626
     ActivePage = ts_Spikes
-    Align = alCustom
+    Align = alBottom
+    Anchors = [akTop, akLeft, akRight, akBottom]
     TabIndex = 0
     TabOrder = 16
     OnChange = en_BottomChange
     object ts_Spikes: TTabSheet
       Caption = 'Spikes'
-      ClientHeight = 260
+      ClientHeight = 258
       ClientWidth = 618
       object TheVirtualStringTree: TVirtualStringTree
         Left = 0
-        Height = 260
+        Height = 258
         Top = 0
         Width = 472
         Align = alClient
@@ -300,11 +301,11 @@ object f_AddPlant: Tf_AddPlant
       end
       object p_SpikeRight: TPanel
         Left = 472
-        Height = 260
+        Height = 258
         Top = 0
         Width = 146
         Align = alRight
-        ClientHeight = 260
+        ClientHeight = 258
         ClientWidth = 146
         TabOrder = 1
         object b_SpikeAdd: TButton
@@ -389,7 +390,7 @@ object f_AddPlant: Tf_AddPlant
     end
     object ts_Comment: TTabSheet
       Caption = 'Comment'
-      ClientHeight = 260
+      ClientHeight = 258
       ClientWidth = 618
       object l_Comment: TLabel
         Left = 8
@@ -401,7 +402,7 @@ object f_AddPlant: Tf_AddPlant
       end
       object m_Comment: TMemo
         Left = 0
-        Height = 228
+        Height = 226
         Top = 32
         Width = 618
         Align = alBottom
