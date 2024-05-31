@@ -7,15 +7,19 @@ interface
 uses
   Classes, SysUtils, SQLite3Conn, SQLDB, DB, BufDataset, Forms, Controls,
   Graphics, Dialogs, Menus, DBGrids, ComCtrls, ExtCtrls, StdCtrls, ActnList,
-  VirtualTrees, w_plant_edit, u_plant, math, uSimpleGraph;
+  VirtualTrees, w_plant_edit, u_plant, math, uSimpleGraph, w_project_select;
 
 type
 
   { Tf_PlantCrossing }
 
   Tf_PlantCrossing = class(TForm)
+    act_Project: TAction;
     act_PlantAdd: TAction;
     act_Close: TAction;
+    cmb_NameFilter: TComboBox;
+    l_NameFilter: TLabel;
+    mi_Project: TMenuItem;
     mi_PlantAdd: TMenuItem;
     mi_Plant: TMenuItem;
     mi_Close: TMenuItem;
@@ -30,9 +34,15 @@ type
     TheDatabase: TSQLite3Connection;
     TheMenu: TMainMenu;
     TheVirtualStringTree: TVirtualStringTree;
+    procedure act_CloseExecute(Sender: TObject);
     procedure act_PlantAddExecute(Sender: TObject);
+    procedure act_ProjectExecute(Sender: TObject);
+    procedure act_ProjectNewExecute(Sender: TObject);
+    procedure act_ProjectOpenExecute(Sender: TObject);
+    procedure cmb_NameFilterChange(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure FormDestroy(Sender: TObject);
+    procedure TheDatabaseAfterConnect(Sender: TObject);
     procedure TheVirtualStringTreeDblClick(Sender: TObject);
     procedure TheVirtualStringTreeDrawText(Sender: TBaseVirtualTree;
       TargetCanvas: TCanvas; Node: PVirtualNode; Column: TColumnIndex;
@@ -45,7 +55,8 @@ type
     FGraph: TEvsSimpleGraph;
     procedure PlantsUpdated(_Autolayout: Boolean = False);
     procedure OnPlantDestroy(_Plant: TPlant);
-  public
+  public                        
+    procedure SetFilename(const _Filename: String);
 
   end;
 
@@ -68,32 +79,30 @@ type
 
 
 const
-  COLUMN_NAME = 0;
-  COLUMN_ID = 1;
+  COLUMN_UID = 0;   
+  COLUMN_SPECIES = 1;
   COLUMN_ACCESSION = 2;
   COLUMN_DATE_OF_CROSSING = 3;
   COLUMN_RECEIVER = 4;
-  COLUMN_DONOR = 5;
-  COLUMN_GENERATION = 6;
-  COLUMN_SUCCESS = 7;
-  COLUMN_NUMBER = 8;
+  COLUMN_RECEIVER_SPIKE = 5;
+  COLUMN_DONOR = 6;
+  COLUMN_GENERATION = 7;
+  COLUMN_STATUS = 8;
+  COLUMN_NUMBER = 9;
+  COLUMN_SPIKE_COUNT = 10;
 
 procedure TPlantNode.SetPlant(_Plant: TPlant);
 begin
   FPlant := _Plant;
-  Text := FPlant.AsText;
+  Text := FPlant.AsUIDText();
 end;
 
 procedure Tf_PlantCrossing.FormCreate(Sender: TObject);
 begin
-  TheDatabase.Connected := True;
-
   FGraph := TEvsSimpleGraph.Create(p_Graph);
   FGraph.Parent := p_Graph;
   FGraph.Align := alClient;
-
-  FPlantList := TPlantListDB.Create(TheDatabase);
-  PlantsUpdated;
+  FPlantList := nil;
 end;
 
 procedure Tf_PlantCrossing.FormDestroy(Sender: TObject);
@@ -101,17 +110,53 @@ begin
   FreeAndNil(FPlantList);
 end;
 
-procedure Tf_PlantCrossing.act_PlantAddExecute(Sender: TObject);
+procedure Tf_PlantCrossing.TheDatabaseAfterConnect(Sender: TObject);
 begin
-  if Tf_AddPlant.Execute(self, nil, FPlantList) then
+
+end;
+
+procedure Tf_PlantCrossing.act_PlantAddExecute(Sender: TObject);
+begin  
+  if not Assigned(FPlantList) then
+    Exit; // -->
+  if Tf_AddPlant.Execute(self, nil, FPlantList, cmb_NameFilter.ItemIndex) then
      PlantsUpdated;
+end;
+
+procedure Tf_PlantCrossing.act_ProjectExecute(Sender: TObject);
+var
+  fn: String;
+begin
+  if Tf_ProjectSelect.Execute(fn) then
+    SetFilename(fn);
+end;
+
+procedure Tf_PlantCrossing.act_ProjectNewExecute(Sender: TObject);
+begin
+end;
+
+procedure Tf_PlantCrossing.act_ProjectOpenExecute(Sender: TObject);
+begin
+
+end;
+
+procedure Tf_PlantCrossing.act_CloseExecute(Sender: TObject);
+begin
+  Close;
+end;
+
+procedure Tf_PlantCrossing.cmb_NameFilterChange(Sender: TObject);
+begin
+
 end;
 
 procedure Tf_PlantCrossing.TheVirtualStringTreeDblClick(Sender: TObject);
 var
   Node: PVirtualNode;
   idx: Integer;
-begin
+begin         
+  if not Assigned(FPlantList) then
+    Exit; // -->
   if TheVirtualStringTree.SelectedCount = 0 then
     Exit; // -->
   Node := TheVirtualStringTree.GetFirstSelected;
@@ -121,7 +166,7 @@ begin
   if idx >= FPlantList.Count then
     Exit; // -->
   
-  if Tf_AddPlant.Execute(self, FPlantList[idx], FPlantList) then
+  if Tf_AddPlant.Execute(self, FPlantList[idx], FPlantList, cmb_NameFilter.ItemIndex) then
     PlantsUpdated;
 end;
 
@@ -132,7 +177,9 @@ procedure Tf_PlantCrossing.TheVirtualStringTreeDrawText(
 var
   idx: integer;
   plant: TPlant;
-begin
+begin     
+  if not Assigned(FPlantList) then
+    Exit; // -->
   idx := Node^.Index;
   if idx >= FPlantList.Count then
     Exit; // -->
@@ -154,6 +201,8 @@ var
   idx: integer;
   plant: TPlant;
 begin
+  if not Assigned(FPlantList) then
+    Exit; // -->
   idx := Node^.Index;
   if idx >= FPlantList.Count then
     Exit; // -->
@@ -161,20 +210,20 @@ begin
   plant := FPlantList[idx];
 
   case Column of
-     COLUMN_NAME: CellText := plant.Name;
-     COLUMN_ID: CellText := plant.UID;
-     COLUMN_ACCESSION: CellText := plant.Accession;
+     COLUMN_UID: CellText := plant.UID;              
+     COLUMN_SPECIES: CellText := plant.AsSpeciesText();
+     COLUMN_ACCESSION: CellText := plant.AsAccessionText();
      COLUMN_DATE_OF_CROSSING: CellText := DateToStr(plant.DateOfCrossing);
      COLUMN_RECEIVER: if Assigned(plant.Receiver) then
-         CellText := plant.Receiver.AsText();
+         CellText := plant.Receiver.AsSpeciesText();
+     COLUMN_RECEIVER_SPIKE: if Assigned(plant.ReceiverSpike) then
+         CellText := plant.ReceiverSpike.Name;
      COLUMN_DONOR: if Assigned(plant.Donor) then
-         CellText := plant.Donor.AsText();
+         CellText := plant.Donor.AsSpeciesText();
      COLUMN_GENERATION: CellText := plant.Generation;
-     COLUMN_SUCCESS: if plant.Success then
-         CellText := 'X'
-       else       
-         CellText := '';
+     COLUMN_STATUS: CellText := TPlant.PlantStatusToStr(plant.Status);
      COLUMN_NUMBER: CellText := IntToStr(plant.Number);
+     COLUMN_SPIKE_COUNT: CellText := IntToStr(plant.Spikes.Count);
   end;
 end;
 
@@ -189,7 +238,9 @@ var
   TmpPlantListNext: TPlantList;
   idx: integer;
   i: integer;
-begin
+begin            
+  if not Assigned(FPlantList) then
+    Exit; // -->
   TheVirtualStringTree.RootNodeCount := Max(1, FPlantList.Count);
   TheVirtualStringTree.Invalidate;
                 
@@ -290,9 +341,18 @@ end;
 
 procedure Tf_PlantCrossing.OnPlantDestroy(_Plant: TPlant);
 begin
-  if Assigned(_Plant.GraphNode) then begin
+  if Assigned(_Plant.GraphNode) then
     _Plant.GraphNode.Free;
-  end;
+end;
+
+procedure Tf_PlantCrossing.SetFilename(const _Filename: String);
+begin                     
+  TheDatabase.Connected := False;
+  FreeAndNil(FPlantList);
+  TheDatabase.DatabaseName := _Filename;
+  TheDatabase.Connected := True;
+  FPlantList := TPlantListDB.Create(TheDatabase);
+  PlantsUpdated;
 end;
 
 

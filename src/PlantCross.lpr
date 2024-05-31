@@ -7,7 +7,7 @@ uses
   cthreads,
   {$ENDIF}{$ENDIF}
   Interfaces, // this includes the LCL widgetset
-  Forms, memdslaz, w_plant_cross
+  Forms, memdslaz, w_plant_cross, w_project_select
   { you can add units after this };
 
 {$R *.res}
@@ -15,11 +15,17 @@ uses
 
 var
   f_PlantCrossing: Tf_PlantCrossing;
+  fn: String;
 begin
   RequireDerivedFormResource:=True;
   Application.Scaled:=True;
   Application.Initialize;
-  Application.CreateForm(Tf_PlantCrossing, f_PlantCrossing);
-  Application.Run;
+
+  if Tf_ProjectSelect.Execute(fn) then begin     
+    Application.CreateForm(Tf_PlantCrossing, f_PlantCrossing);
+    f_PlantCrossing.SetFilename(fn);     
+    Application.Run;
+  end;
+
 end.
 

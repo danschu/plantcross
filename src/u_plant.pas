@@ -5,49 +5,88 @@ unit u_plant;
 interface
 
 uses
-  Classes, SysUtils, fgl, SQLDB, DB, Variants;
+  Classes, SysUtils, fgl, SQLDB, DB, Variants, types, TypInfo;
 
 
 const
-  SQL_PLANT_ADD = 'INSERT INTO plants '+
-                '(id, name, accession, id_receiver, id_donor, generation, number, dateofcrossing, success, uid, comment, deleted) VALUES '+
-                '(:id, :name, :accession, :id_receiver, :id_donor, :generation, :number, :dateofcrossing, :success, :uid, :comment, :deleted)';
+  SQL_PLANT_ADD = 'REPLACE INTO plants '+
+                '(id, uid, species, accession, id_receiver, id_receiver_spike, id_donor, generation, number, dateofcrossing, id_status, comment, deleted) VALUES '+
+                '(:id, :uid, :species, :accession, :id_receiver, :id_receiver_spike, :id_donor, :generation, :number, :dateofcrossing, :id_status, :comment, :deleted)';
 
-  SQL_PLANT_UPDATE = 'UPDATE plants SET '+
-                'name = :name, '+
-                'accession = :accession, '+
-                'id_receiver = :id_receiver, '+
-                'id_donor = :id_donor, '+
-                'generation = :generation, '+
-                'number = :number, '+
-                'dateofcrossing = :dateofcrossing, '+
-                'success = :success, '+
-                'uid = :uid, '+
-                'comment = :comment,'+
-                'deleted = :deleted WHERE id = :id';
+
+  SQL_PLANT_STATUS_CREATE_TABLE = 'CREATE TABLE IF NOT EXISTS plant_status(id text primary key, name text);';
+  SQL_PLANT_STATUS_ADD = 'REPLACE INTO plant_status(id, name) VALUES (:id, :name);';
+
+  SQL_SPIKES_CREATE_TABLE = 'CREATE TABLE IF NOT EXISTS spikes ('+
+                'id text primary key, '+
+                'id_plant text references plant, '+
+                'name text, '+
+                'seed_count integer, '+
+                'flower_count integer, '+
+                'UNIQUE(id_plant, name)'+
+                ')';
+
+  SQL_SPIKE_ADD = 'REPLACE INTO spikes ' +
+    '(id , id_plant, name, seed_count, flower_count) VALUES '+
+    '(:id, :id_plant, :name, :seed_count, :flower_count)';
+
+  SQL_SPIKES_GET = 'SELECT * FROM spikes WHERE id_plant = :id_plant ORDER BY name';
 
   SQL_PLANTS_CREATE_TABLE =
       'CREATE TABLE IF NOT EXISTS plants ('+
       'id text primary key, '+
-      'name text, ' +
+      'uid text unique, ' + 
+      'species text, '+
       'accession text, '+
-      'id_receiver text, '+
-      'id_donor text, '+
+      'id_receiver text REFERENCES plants, '+
+      'id_receiver_spike text REFERENCES spikes, '+
+      'id_donor text REFERENCES plants, '+
       'generation text, '+
       'number integer, '+
       'dateofcrossing datetime, '+
-      'success bool, '+
-      'uid text unique,'+
+      'id_status text REFERENCES plant_status, '+
       'comment text, '+
       'deleted bool'+
       ')';
              
-  SQL_PLANTS_GET = 'SELECT * FROM plants ORDER BY deleted';
+  SQL_PLANTS_GET = 'SELECT * FROM plants ORDER BY deleted, dateofcrossing';
 
-type
+type          
+  TPlant = class;
+
+  { TSpike }
+
+  TSpike = class(TObject)
+  private
+    FGUID: String;
+    FName: String;
+    FSeedCount: Integer;
+    FFlowerCount: Integer;
+    FParent: TPlant;
+    procedure SetGUID(const _GUID: String);
+  public
+    property GUID: String read FGUID write SetGUID;
+    property Name: String read FName write FName;
+    property SeedCount: integer read FSeedCount write FSeedCount;
+    property FlowerCount: integer read FFlowerCount write FFlowerCount;
+    constructor Create(_Parent: TPlant; const _GUID: String = ''; const _Name: String = ''; _SeedCount: Integer = 0; _FlowerCount: Integer = 0);
+    function Copy(_Parent: TPlant): TSpike;
+  end;      
+            
+  TSpikeList_ = specialize TFPGObjectList<TSpike>;
+
+  { TSpikeList }
+
+  TSpikeList = class(TSpikeList_)
+  public
+    function FindByName(const _Name: String): TSpike;
+  end;
+
+
+  TPlantStatus = (psUnknown, psSeed, psPlant);
+
   TPlantList = class;
   TPlantListDB = class;
-  TPlant = class;
   TPlantNotify = procedure (_Plant: TPlant) of object;
 
   { TPlant }
@@ -55,16 +94,16 @@ type
   TPlant = class(TObject)
   private
     FTopleft: TPoint;
-    FGUID: String;
-    FName: String;
+    FGUID: String;   
+    FUid: String;
     FGeneration: String;
+    FSpecies: String;
     FAccession: String;
     FReceiverId: String;
+    FReceiverSpikeId: String;
     FDonorId: String;
     FNumber: Integer;
     FDateOfCrossing: TDate;
-    FSuccess: Boolean;
-    FUid: String;
     FComment: String;
     FDeleted: Boolean;
     FParent: TPlantList;
@@ -72,40 +111,50 @@ type
     FDonor: TPlant;
     FGraphNode: TObject;
     FOnBeforeDestroy: TPlantNotify;
+    FStatus: TPlantStatus;
+    FReceiverSpike: TSpike;
+    FSpikeList: TSpikeList;
     procedure SetDonor(_Donor: TPlant);
     procedure SetGUID(const _GUID: String);
     procedure SetReceiver(_Receiver: TPlant);
+    procedure SetReceiverSpike(_Spike: TSpike);
   public
+    class function PlantStatusToStr(_PlantStatus: TPlantStatus): string;
+    class function StrToPlantStatus(const _PlantStatus: string): TPlantStatus;
+
     property TopLeft: TPoint read FTopleft write FTopLeft;
 
-    function AsText(): String;
-    function AsUID(): String; overload;
-    class function AsUID(const _Text: String): String; overload;
+    function AsAccessionText(): String;
+    function AsSpeciesText(): String;
+    function AsUIDText(): String;
 
     property Parent: TPlantList read FParent;
-    constructor Create(_Parent: TPlantList; const _GUID: String = ''; const _UID: String = ''; const _Name: String = ''; const _Accession: String = '';
-            const _ReceiverId: String = ''; const _DonorId: String = '';
-            const _Generation: String = ''; _Number: Integer = 1; _DateOfCrossing: TDate = 0; _Success: Boolean = False; const _Comment: String = ''; _Deleted: Boolean = False);
+    constructor Create(_Parent: TPlantList; const _GUID: String = ''; const _UID: String = ''; const _Species: String = ''; const _Accession: String = '';
+            const _ReceiverId: String = ''; const _ReceiverSpikeId: String = ''; const _DonorId: String = '';
+            const _Generation: String = ''; _Number: Integer = 1; _DateOfCrossing: TDate = 0; _Status: TPlantStatus = psUnknown;
+            const _Comment: String = ''; _Deleted: Boolean = False);
 
     destructor Destroy; override;
+    property Spikes: TSpikeList read FSpikeList;
     property GUID: String read FGUID write SetGUID;
-    property Name: String read FName write FName;
+    property UID: String read FUID write FUID;               
+    property Species: String read FSpecies write FSpecies;
     property Accession: String read FAccession write FAccession;
     property ReceiverId: String read FReceiverId;
     property DonorId: String read FDonorId;
+    property ReceiverSpikeId: String read FReceiverSpikeId;
 
     property Receiver: TPlant read FReceiver write SetReceiver;
+    property ReceiverSpike: TSpike read FReceiverSpike write SetReceiverSpike;
     property Donor: TPlant read FDonor write SetDonor;
 
     property Generation: String read FGeneration write FGeneration;
     property Number: Integer read FNumber write FNumber;
     property DateOfCrossing: TDate read FDateOfCrossing write FDateOfCrossing;
-    property Success: boolean read FSuccess write FSuccess;
-    property UID: String read FUID write FUID;
+    property Status: TPlantStatus read FStatus write FStatus default psUnknown;
     property Comment: String read FComment write FComment;
     property Deleted: Boolean read FDeleted write FDeleted;
     property GraphNode: TObject read FGraphNode write FGraphNode;
-
 
     procedure UpdateFrom(_Plant: TPlant);
     property OnBeforeDestroy: TPlantNotify read FOnBeforeDestroy write FOnBeforeDestroy;
@@ -127,9 +176,11 @@ type
     procedure ReadFromDatabase;
     procedure TryCreateNew;         
     function GetQuery(const _SQL: String): TSQLQuery;
+    procedure ExecQuery(const _SQL: String);
     function NewID: String;
-  public                        
-    procedure Save(_Plant: TPlant);
+  public
+    procedure Save(_Plant: TPlant; _commit: boolean); overload;
+    procedure Save(_Spike: TSpike; _commit: boolean; const _ParentGUID: String); overload;
     function FindByGUID(const _GUID: String): TPlant;
     function FindByUID(const _UID: String): TPlant;
     constructor Create(_SQLConnection: TSQLConnection);
@@ -137,6 +188,48 @@ type
   end;
 
 implementation
+
+{ TSpikeList }
+
+function TSpikeList.FindByName(const _Name: String): TSpike;
+var
+  Spike: TSpike;
+begin
+  Result := nil;
+  for Spike in self do begin
+    if SameText(Spike.Name, _Name) then begin
+      Result := Spike;
+      Exit; // -->
+    end;
+  end;
+end;
+
+{ TSpike }
+
+procedure TSpike.SetGUID(const _GUID: String);
+begin
+  if (FGUID <> '') and (FGUID <> _GUID) then
+    raise Exception.Create('TSpike.SetGUID');
+  FGUID:= _GUID;
+end;
+
+constructor TSpike.Create(_Parent: TPlant; const _GUID: String;
+  const _Name: String; _SeedCount: Integer; _FlowerCount: Integer = 0);
+begin
+  inherited Create;
+  FParent := _Parent;
+  FGUID := _GUID;
+  FName := _Name;
+  FSeedCount := _SeedCount;
+  FFlowerCount := _FlowerCount;
+end;
+
+function TSpike.Copy(_Parent: TPlant): TSpike;
+begin
+  Result := TSpike.Create(
+     _Parent, GUID, Name, SeedCount, FlowerCount
+  );
+end;
 
 { TPlantListDB }
 
@@ -148,34 +241,80 @@ begin
   Result.SQL.Text := _SQL;
 end;
 
-procedure TPlantListDB.Save(_Plant: TPlant);
+procedure TPlantListDB.ExecQuery(const _SQL: String);
+var
+  qry: TSQLQuery;
+begin
+  qry := GetQuery(_SQL);
+  try
+    qry.ExecSQL;
+  finally
+    FreeAndNil(qry);
+  end;
+end;
+
+procedure TPlantListDB.Save(_Plant: TPlant; _commit: boolean);
 var
   qry: TSQLQuery;
   GUID: String;
+  Spike: TSpike;
 begin
- if _Plant.GUID = '' then begin
-    GUID := NewID();
-    qry := GetQuery(SQL_PLANT_ADD);
- end else begin
+ if _Plant.GUID = '' then
+    GUID := NewID()
+ else
     GUID := _Plant.GUID;
-    qry := GetQuery(SQL_PLANT_UPDATE);
- end;
+
+ qry := GetQuery(SQL_PLANT_ADD);
  try
     qry.ParamByName('id').Value := GUID;
-    qry.ParamByName('uid').Value := _Plant.UID;
-    qry.ParamByName('name').Value := _Plant.Name;
+    qry.ParamByName('uid').Value := _Plant.UID;        
+    qry.ParamByName('species').Value := _Plant.Species;
     qry.ParamByName('accession').Value := _Plant.Accession;
     qry.ParamByName('id_receiver').Value := _Plant.ReceiverId;
+    qry.ParamByName('id_receiver_spike').Value := _Plant.ReceiverSpikeId;
     qry.ParamByName('id_donor').Value := _Plant.DonorId;
     qry.ParamByName('generation').Value := _Plant.Generation;
     qry.ParamByName('number').Value := _Plant.Number;
     qry.ParamByName('dateofcrossing').Value := _Plant.DateOfCrossing;
-    qry.ParamByName('success').Value := _Plant.Success;
+    qry.ParamByName('id_status').Value := TPlant.PlantStatusToStr(_Plant.Status);
     qry.ParamByName('comment').Value := _Plant.Comment;
     qry.ParamByName('deleted').Value := _Plant.Deleted;
-    qry.ExecSQL;
+    qry.ExecSQL;   
+    for Spike in _Plant.Spikes do begin
+      Save(Spike, False, GUID);
+    end;
+
+    if _commit then
+      FSQLConnection.CloseTransactions;
+
     _Plant.GUID := GUID;
-    FSQLConnection.CloseTransactions;
+
+  finally
+    FreeAndNil(qry);
+  end;
+end;
+
+procedure TPlantListDB.Save(_Spike: TSpike; _commit: boolean; const _ParentGUID: String);
+var
+  qry: TSQLQuery;
+  GUID: String;
+begin
+ if _Spike.GUID = '' then
+    GUID := NewID()
+ else
+    GUID := _Spike.GUID;
+
+ qry := GetQuery(SQL_SPIKE_ADD);
+ try
+    qry.ParamByName('id').Value := GUID;   
+    qry.ParamByName('id_plant').Value := _ParentGUID;
+    qry.ParamByName('name').Value := _Spike.Name;
+    qry.ParamByName('seed_count').Value := _Spike.SeedCount;
+    qry.ParamByName('flower_count').Value := _Spike.FlowerCount;
+    qry.ExecSQL;
+    if _commit then
+      FSQLConnection.CloseTransactions;       
+    _Spike.GUID := GUID;
   finally
     FreeAndNil(qry);
   end;
@@ -222,6 +361,8 @@ var
   plant_p: TPlant;
   i: integer;
   GUID:  String;
+  qry_spikes: TSQLQuery;
+  Spike: TSpike;
 begin
   qry := GetQuery(SQL_PLANTS_GET);
   try
@@ -229,18 +370,38 @@ begin
     while not qry.EOF do begin
       plant := TPlant.Create(self,
         qry['id'],
-        qry['uid'],
-        qry['name'],
+        qry['uid'],   
+        qry['species'],
         qry['accession'],
         qry['id_receiver'],
+        qry['id_receiver_spike'],
         qry['id_donor'],
         qry['generation'],
         qry['number'],
         VarToDateTime(qry['dateofcrossing']),
-        qry['success'],
+        TPlant.StrToPlantStatus(qry['id_status']),
         qry['comment'],
         qry['deleted']
       );
+
+      qry_spikes := GetQuery(SQL_SPIKES_GET);
+      try
+        qry_spikes.ParamByName('id_plant').Value := qry['id'];
+        qry_spikes.Open;    
+        while not qry_spikes.EOF do begin
+          Spike := TSpike.Create(plant,
+            qry_spikes['id'],
+            qry_spikes['name'],
+            qry_spikes['seed_count'],
+            qry_spikes['flower_count']
+            );
+          plant.Spikes.Add(Spike);
+          qry_spikes.Next;
+        end;
+      finally
+        FreeAndNil(qry_spikes);
+      end;
+
       Add(Plant);
       qry.Next;
     end;
@@ -277,13 +438,26 @@ end;
 
 procedure TPlantListDB.TryCreateNew;
 var
+  plantStatus: TPlantStatus;
   qry: TSQLQuery;
 begin
-  qry := GetQuery(SQL_PLANTS_CREATE_TABLE);
+  FSQLTransaction.StartTransaction;
   try
-    qry.ExecSQL;
+    ExecQuery(SQL_PLANT_STATUS_CREATE_TABLE);
+    for plantStatus in TPlantStatus do begin
+      qry := GetQuery(SQL_PLANT_STATUS_ADD);
+      try
+        qry.ParamByName('id').Value := TPlant.PlantStatusToStr(plantStatus);
+        qry.ParamByName('name').Value := TPlant.PlantStatusToStr(plantStatus);
+        qry.ExecSQL;
+      finally
+        FreeAndNil(qry);
+      end;
+    end;
+    ExecQuery(SQL_SPIKES_CREATE_TABLE);
+    ExecQuery(SQL_PLANTS_CREATE_TABLE);
   finally
-    FreeAndNil(qry);
+    FSQLTransaction.Commit;
   end;
 end;
 
@@ -331,62 +505,125 @@ begin
     FReceiverId := '';
 end;
 
-function TPlant.AsText: String;
+procedure TPlant.SetReceiverSpike(_Spike: TSpike);
 begin
-  Result := '';
-  if FUid <> '' then begin
-    Result := FUid;
+  FReceiverSpike := _Spike;
+  if Assigned(_Spike) then
+    FReceiverSpikeId := _Spike.GUID
+  else
+    FReceiverSpikeId := '';
+end;
+
+class function TPlant.PlantStatusToStr(_PlantStatus: TPlantStatus): string;
+begin
+  Result := Copy(GetEnumName(typeInfo(TPlantStatus), Ord(_PlantStatus)), 3);
+end;
+
+class function TPlant.StrToPlantStatus(const _PlantStatus: string): TPlantStatus;
+begin
+  Result := TPlantStatus(GetEnumValue(Typeinfo(TPlantStatus), 'ps'+_PlantStatus));
+end;
+
+function TPlant.AsSpeciesText: String;
+var
+  AccR: String;
+  DonorR: String;
+begin          
+  Result := Species;
+  if Result <> '' then
     Exit; // -->
-  end;
 
-  if FName <> '' then
-    Result := FName;
-  if FAccession <> '' then begin
-    if Result = '' then
-      Result := FAccession
-    else
-      Result := Result + Format('(%s)', [FAccession]);
-  end;
+  if Assigned(FReceiver) then begin
+    AccR := FReceiver.AsSpeciesText;
+    if AccR = '' then
+      AccR := '???';
+  end else
+    AccR := '???';
 
+  if Assigned(FDonor) then begin
+    DonorR := FDonor.AsSpeciesText;
+    if DonorR = '' then
+      DonorR := '???';
+  end else
+    DonorR := '???';
 
-  if (FGUID <> '') and (Result = '') then
-    Result := FGUID;
+  Result := Format('(%s*%s)', [Accr, DonorR]);
 end;
 
-function TPlant.AsUID: String;
+function TPlant.AsUIDText: String;
+var
+  AccR: String;
+  DonorR: String;
 begin
-  Result := AsUID(AsText);
+  Result := UID;
+  if Result <> '' then
+    Exit; // -->
+
+  if Assigned(FReceiver) then begin
+    AccR := FReceiver.AsUIDText;
+    if AccR = '' then
+      AccR := '???';
+  end else
+    AccR := '???';
+
+  if Assigned(FDonor) then begin
+    DonorR := FDonor.AsUIDText;
+    if DonorR = '' then
+      DonorR := '???';
+  end else
+    DonorR := '???';
+
+  Result := Format('(%s*%s)', [Accr, DonorR]);
 end;
 
-class function TPlant.AsUID(const _Text: String): String;
+function TPlant.AsAccessionText: String;
+var
+  AccR: String;
+  DonorR: String;
 begin
-  Result :=
-    StringReplace(
-      StringReplace(
-        UpperCase(_Text)
-    ,' ', '_', [rfReplaceAll])
-    ,'.', '', [rfReplaceAll]);
+  Result := Accession;
+  if Result <> '' then
+    Exit; // -->
+
+  if Assigned(FReceiver) then begin
+    AccR := FReceiver.AsAccessionText;
+    if AccR = '' then
+      AccR := '???';
+  end else
+    AccR := '???';
+                        
+  if Assigned(FDonor) then begin
+    DonorR := FDonor.AsAccessionText;
+    if DonorR = '' then
+      DonorR := '???';
+  end else
+    DonorR := '???';
+
+  Result := Format('(%s*%s)', [Accr, DonorR]);
 end;
+
 
 constructor TPlant.Create(_Parent: TPlantList; const _GUID: String;
-  const _UID: String; const _Name: String; const _Accession: String;
-  const _ReceiverId: String; const _DonorId: String; const _Generation: String;
-  _Number: Integer; _DateOfCrossing: TDate; _Success: Boolean;
+  const _UID: String; const _Species: String;  const _Accession: String; const _ReceiverId: String;
+  const _ReceiverSpikeId: String; const _DonorId: String; const _Generation: String;
+  _Number: Integer; _DateOfCrossing: TDate; _Status: TPlantStatus;
   const _Comment: String; _Deleted: Boolean);
 begin
   inherited Create();
+  FSpikeList := TSpikeList.Create();
   FParent := _Parent;
   FGUID := _GUID;
   FUID := _UID;
-  FName := _Name;
+  FSpecies := _Species;
   FAccession := _Accession;
   FReceiverId := _ReceiverId;
+  FReceiverSpikeId := _ReceiverSpikeId;
   FDonorId := _DonorId;
   FGeneration := _Generation;
   FNumber := _Number;
   FDateOfCrossing := _DateOfCrossing;
+  FStatus := _Status;
   FComment := _Comment;
-  FSuccess := _Success;
   FDeleted := _Deleted;
 end;
 
@@ -394,25 +631,35 @@ destructor TPlant.Destroy;
 begin
   if Assigned(FOnBeforeDestroy) then
     FOnBeforeDestroy(self);
+  FreeAndNil(FSpikeList);
   inherited Destroy;
 end;
 
 procedure TPlant.UpdateFrom(_Plant: TPlant);
+var
+  Spike: TSpike;
 begin
   FParent := _Plant.Parent;
   FGUID := _Plant.GUID;
-  FUID := _Plant.UID;
-  FName := _Plant.Name;
+  FUID := _Plant.UID;        
+  FSpecies := _Plant.Species;
   FAccession := _Plant.Accession;
   Receiver := _Plant.Receiver;
+  ReceiverSpike := _Plant.ReceiverSpike;
   Donor := _Plant.Donor;
   FGeneration := _Plant.Generation;
   FNumber := _Plant.Number;
   FDateOfCrossing := _Plant.DateOfCrossing;
   FComment := _Plant.Comment;
-  FSuccess := _Plant.Success;
+  FStatus := _Plant.Status;
   FDeleted := _Plant.Deleted;
   FTopLeft := _Plant.TopLeft;
+
+  FreeAndNil(FSpikeList);
+  FSpikeList := TSpikeList.Create;
+
+  for Spike in _Plant.Spikes do
+     FSpikeList.Add(Spike.Copy(self));
 end;
 
 end.

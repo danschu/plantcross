@@ -32,11 +32,37 @@ object f_PlantCrossing: Tf_PlantCrossing
     object b_AddNewPlant: TButton
       Left = 8
       Height = 25
-      Top = 8
+      Top = 48
       Width = 152
       Action = act_PlantAdd
       Anchors = [akTop, akLeft, akRight]
       TabOrder = 0
+    end
+    object cmb_NameFilter: TComboBox
+      Left = 8
+      Height = 23
+      Top = 24
+      Width = 152
+      ItemHeight = 15
+      ItemIndex = 1
+      Items.Strings = (
+        'UnqiueID'
+        'Species'
+        'Accession'
+        ''
+      )
+      OnChange = cmb_NameFilterChange
+      Style = csDropDownList
+      TabOrder = 1
+      Text = 'Species'
+    end
+    object l_NameFilter: TLabel
+      Left = 8
+      Height = 15
+      Top = 8
+      Width = 61
+      Caption = 'Name Filter'
+      ParentColor = False
     end
   end
   object p_Client: TPanel
@@ -59,13 +85,13 @@ object f_PlantCrossing: Tf_PlantCrossing
       Header.Columns = <      
         item
           Position = 0
-          Text = 'Name'
+          Text = 'UID'
           Width = 120
         end      
         item
           Position = 1
-          Text = 'UID'
-          Width = 120
+          Text = 'Species'
+          Width = 160
         end      
         item
           Position = 2
@@ -84,24 +110,35 @@ object f_PlantCrossing: Tf_PlantCrossing
         end      
         item
           Position = 5
+          Text = 'Receiver Spike'
+          Width = 120
+        end      
+        item
+          Position = 6
           Text = 'Donor'
           Width = 156
         end      
         item
-          Position = 6
+          Position = 7
           Text = 'Generation'
           Width = 80
         end      
         item
-          Position = 7
-          Text = 'Success'
+          Position = 8
+          Text = 'Status'
           Width = 80
         end      
         item
-          Position = 8
-          Text = 'Number'
+          Position = 9
+          Text = '#Crossing'
+          Width = 80
+        end      
+        item
+          Position = 10
+          Text = '#Spikes'
           Width = 80
         end>
+      Header.MainColumn = 1
       Header.Options = [hoColumnResize, hoDrag, hoShowSortGlyphs, hoVisible]
       RootNodeCount = 1
       TabOrder = 0
@@ -133,6 +170,9 @@ object f_PlantCrossing: Tf_PlantCrossing
     Top = 96
     object mi_File: TMenuItem
       Caption = '&File'
+      object mi_Project: TMenuItem
+        Action = act_Project
+      end
       object mi_Close: TMenuItem
         Action = act_Close
       end
@@ -147,7 +187,7 @@ object f_PlantCrossing: Tf_PlantCrossing
   object TheDatabase: TSQLite3Connection
     Connected = False
     LoginPrompt = False
-    DatabaseName = 'db/plantcrossing.sqlite'
+    AfterConnect = TheDatabaseAfterConnect
     KeepConnection = False
     HostName = 'localhost'
     AlwaysUseBigint = False
@@ -160,11 +200,17 @@ object f_PlantCrossing: Tf_PlantCrossing
     object act_Close: TAction
       Category = 'File'
       Caption = '&Close'
+      OnExecute = act_CloseExecute
     end
     object act_PlantAdd: TAction
       Category = 'Plant'
-      Caption = '&Add'
+      Caption = '&Add Plant/Seed'
       OnExecute = act_PlantAddExecute
+    end
+    object act_Project: TAction
+      Category = 'File'
+      Caption = '&Projects...'
+      OnExecute = act_ProjectExecute
     end
   end
 end

@@ -35,3 +35,4 @@ lib/
 
 # End of https://www.toptal.com/developers/gitignore/api/lazarus
 /libs/EvsSimpleGraph
+/sqlite3.def
